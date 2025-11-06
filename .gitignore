@@ -1,0 +1,21 @@
+# Ignorar pastas desnecessárias
+venv/
+build/
+dist/
+__pycache__/
+relogioMobile/
+*.spec
+
+# Ignorar arquivos temporários
+*.log
+*.tmp
+*.pyc
+
+# Ignorar qualquer coisa que não seja os principais
+*
+!app.ico
+!app.py
+!calendario.html
+!index.html
+!style.css
+!.gitignore
