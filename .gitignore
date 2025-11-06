@@ -18,10 +18,10 @@
 #!relogioMobile/www/**
 
 # 🧱 Ignorar ambientes virtuais e builds
-venv/
-.env/
-build/
-dist/
+*venv/
+*.env/
+*build/
+*dist/
 __pycache__/
 *.spec
 *.exe
