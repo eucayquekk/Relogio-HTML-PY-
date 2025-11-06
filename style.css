@@ -1,0 +1,1048 @@
+:root {
+  --bg-1: #0b0b0b;
+  /* fundo geral (noite netflix) */
+  --bg-2: #121212;
+  --card: rgba(255, 255, 255, 0.03);
+  --glass: rgba(255, 255, 255, 0.06);
+  --accent: #e50914;
+  /* vermelho Netflix */
+  --accent-2: #ff3b3b;
+  --muted: #9a9a9a;
+  --text: #eaeaea;
+  --glass-strong: rgba(255, 255, 255, 0.08);
+}
+
+/* Light variant (optional) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-1: #f2f2f7;
+    --bg-2: #ffffff;
+    --card: rgba(0, 0, 0, 0.03);
+    --glass: rgba(255, 255, 255, 0.7);
+    --accent: #e50914;
+    --text: #111114;
+    --muted: #6b6b6b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0
+}
+
+html,
+body {
+  height: 100%
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(1200px 700px at 10% 10%, rgba(229, 9, 20, 0.06), transparent 8%),
+    radial-gradient(800px 500px at 90% 80%, rgba(255, 59, 59, 0.03), transparent 6%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---------- LOGO ---------- */
+.logo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 6px rgba(255, 0, 0, 0.5));
+}
+
+/* ---------- TÍTULO ---------- */
+h1 {
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  margin-bottom: 1rem;
+  text-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+}
+
+/* CARD principal */
+.card {
+  width: 360px;
+  max-width: 95vw;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  position: relative;
+}
+
+/* digital */
+.digital {
+  width: 100%;
+  text-align: center
+}
+
+.time {
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.date {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* analog */
+.analog-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 220px;
+  height: 220px;
+  position: relative
+}
+
+.clock-face {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), inset 0 6px 18px rgba(255, 255, 255, 0.02);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+/* glass reflection */
+.clock-face::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
+  pointer-events: none;
+}
+
+/* center dot */
+.center-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  z-index: 8;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6)
+}
+
+/* hands */
+.hand {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 50% 100%;
+  border-radius: 6px;
+  transition: transform 0.08s linear
+}
+
+.hand.hour {
+  width: 6px;
+  height: 55px;
+  background: linear-gradient(180deg, #222, #111);
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6)
+}
+
+.hand.minute {
+  width: 4px;
+  height: 78px;
+  background: linear-gradient(180deg, #333, #111);
+  z-index: 6
+}
+
+.hand.second {
+  width: 2px;
+  height: 92px;
+  background: var(--accent);
+  z-index: 7;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.6)
+}
+
+/* ticks */
+.ticks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none
+}
+
+.tick {
+  position: absolute;
+  left: 50%;
+  top: 6px;
+  width: 2px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  transform-origin: 50% 50%
+}
+
+/* roman */
+.roman-numbers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.6)
+}
+
+.roman-numbers span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: 50% 0%;
+  text-align: center;
+  pointer-events: none
+}
+
+/* controls */
+.controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 8px 14px;
+  border-radius: 16px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px
+}
+
+.btn:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(229, 9, 20, 0.6);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.06)
+}
+
+/* dark btn (top right moon) */
+.dark-btn {
+  position: fixed;
+  top: 18px;
+  left: 18px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 6px;
+  border-radius: 8px;
+  z-index: 30
+}
+
+.dark-btn svg {
+  display: block
+}
+
+/* hamburger (top-right) */
+.hamburger {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center
+}
+
+.hamburger svg {
+  width: 28px;
+  height: 28px;
+  overflow: visible
+}
+
+.hamburger svg path {
+  stroke: var(--text);
+  stroke-width: 2;
+  stroke-linecap: round;
+  fill: none;
+  transition: stroke 220ms ease, transform 220ms ease
+}
+
+/* hamburger -> X animation */
+.hamburger.open svg .p1 {
+  transform-origin: 12px 12px
+}
+
+.hamburger.open svg .p2 {
+  opacity: 0
+}
+
+.hamburger.open svg .p3 {
+  transform-origin: 12px 12px
+}
+
+.hamburger.open svg .p1 {
+  transform: translateY(6px) rotate(45deg)
+}
+
+.hamburger.open svg .p3 {
+  transform: translateY(-6px) rotate(-45deg)
+}
+
+.hamburger:hover svg path {
+  stroke: var(--accent)
+}
+
+/* menu modal (glass) */
+.menu-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  z-index: 35;
+  align-items: flex-start;
+  justify-content: flex-end
+}
+
+.menu-content {
+  margin: 60px 20px 0 auto;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  border-radius: 14px;
+  padding: 18px 18px;
+  width: 260px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.03)
+}
+
+.menu-content h2 {
+  font-size: 16px;
+  margin-bottom: 8px
+}
+
+.menu-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0
+}
+
+.menu-content li {
+  margin: 8px 0
+}
+
+.menu-content a {
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px
+}
+
+.menu-content a:hover {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--accent)
+}
+
+/* slide-up calendar (inside relogio) */
+.calendar-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -120%;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.96));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 18px;
+  z-index: 45;
+  transition: bottom 360ms cubic-bezier(.2, .9, .25, 1);
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px)
+}
+
+.calendar-modal.active {
+  bottom: 0
+}
+
+.calendar-content {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--text)
+}
+
+.calendar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  background: transparent;
+  padding-bottom: 12px
+}
+
+.day-name {
+  color: var(--muted);
+  font-weight: 700;
+  text-align: center;
+  font-size: 12px
+}
+
+.day {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 180ms
+}
+
+.day:hover {
+  background: rgba(229, 9, 20, 0.12);
+  color: var(--text)
+}
+
+.day.today {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 6px 18px rgba(229, 9, 20, 0.12)
+}
+
+.calendar-controls button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer
+}
+
+.calendar-controls button:hover {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(229, 9, 20, 0.6)
+}
+
+/* small screens */
+@media(max-width:420px) {
+  .card {
+    width: 94vw;
+    padding: 16px;
+    border-radius: 16px
+  }
+
+  .time {
+    font-size: 34px
+  }
+
+  .calendar-modal {
+    padding: 12px
+  }
+
+  .day {
+    height: 36px;
+    border-radius: 8px
+  }
+}
+
+/* Agenda Modal */
+.agenda-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -120%;
+  background: linear-gradient(180deg, rgba(10, 10, 10, 0.95), rgba(20, 20, 20, 0.96));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 18px;
+  z-index: 50;
+  transition: bottom 360ms cubic-bezier(.2, .9, .25, 1);
+  box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+}
+
+.agenda-modal.active {
+  bottom: 0;
+}
+
+.agenda-content {
+  max-width: 720px;
+  margin: 0 auto;
+  color: var(--text);
+}
+
+.agenda-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.agenda-top h2 {
+  font-size: 18px;
+  color: var(--text);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+
+.task-item {
+  background: var(--glass);
+  padding: 10px 14px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.4s forwards;
+}
+
+.task-item.completed {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.agenda-footer {
+  display: flex;
+  gap: 8px;
+}
+
+.agenda-footer input[type="text"],
+.agenda-footer input[type="time"] {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--glass);
+  color: var(--text);
+}
+
+.agenda-footer .btn {
+  flex-shrink: 0;
+}
+
+@keyframes slideIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* Notificação overlay de tasks */
+.task-overlay {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background: linear-gradient(135deg, rgba(229,9,20,0.95), rgba(255,59,59,0.95));
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  font-weight: 600;
+  font-size: 14px;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transform: translateY(20px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideUp 0.5s forwards, fadeOut 0.5s 4.5s forwards;
+}
+
+@keyframes slideUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-20px); }
+}
+
+.agenda-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: -120%;       /* fora da tela inicialmente */
+  background: linear-gradient(180deg, rgba(10,10,10,0.95), rgba(20,20,20,0.96));
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  padding: 18px;
+  z-index: 1000;
+  transition: bottom 360ms cubic-bezier(.2,.9,.25,1);
+  box-shadow: 0 -20px 40px rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: flex;       /* mantemos flex para centralizar conteúdo */
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.agenda-modal.active {
+  bottom: 0;           /* slide up */
+}
+/* ------------------------
+   Agenda de Tarefas • Netflix Glassmorphism Style
+   ------------------------ */
+
+.agenda-modal {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 90%;
+  background: rgba(30, 30, 30, 0.75); /* fundo escuro semi-transparente */
+  backdrop-filter: blur(20px) saturate(150%);
+  border-top-left-radius: 28px;
+  border-top-right-radius: 28px;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 1000;
+  padding: 28px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.agenda-modal.active {
+  transform: translateY(0);
+}
+
+.agenda-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenda-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.agenda-top h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.agenda-top select {
+  padding: 10px 16px;
+  border-radius: 22px;
+  border: none;
+  background: rgba(50, 50, 50, 0.6);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.agenda-top select:hover {
+  background: rgba(50,50,50,0.85);
+  transform: scale(1.04);
+}
+
+.agenda-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.agenda-footer input,
+.agenda-footer select {
+  padding: 12px 18px;
+  border-radius: 24px;
+  border: none;
+  background: rgba(50, 50, 50, 0.5);
+  color: #fff;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 120px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  transition: all 0.25s ease;
+}
+
+.agenda-footer input:focus,
+.agenda-footer select:focus {
+  outline: none;
+  box-shadow: 0 10px 36px rgba(229, 9, 20, 0.5);
+}
+
+.agenda-footer button {
+  background: linear-gradient(145deg, #e50914, #ff1a1a);
+  color: #fff;
+  border: none;
+  border-radius: 26px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(6px);
+}
+
+.agenda-footer button:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 40px rgba(229, 9, 20, 0.8);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.task-item {
+  background: rgba(40, 40, 40, 0.65);
+  padding: 16px 20px;
+  border-radius: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  animation: fadeUp 0.35s forwards;
+  font-size: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.task-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 48px rgba(229, 9, 20, 0.6);
+}
+
+.task-item.completed span {
+  text-decoration: line-through;
+  opacity: 0.55;
+  color: #bbb;
+}
+
+.task-item button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 1.3rem;
+  transition: transform 0.2s ease;
+}
+
+.task-item button:hover {
+  transform: scale(1.2);
+  color: #e50914;
+}
+
+.task-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #e50914, #ff1a1a);
+  color: #fff;
+  padding: 16px 28px;
+  border-radius: 28px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  font-weight: 800;
+  z-index: 2000;
+  animation: slideIn 0.4s ease forwards;
+}
+
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(16px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateX(60px);}
+  100% { opacity: 1; transform: translateX(0);}
+}
+
+/* ------------------------
+   📱 Responsividade iOS / Android
+   ------------------------ */
+
+@media (max-width: 768px) {
+
+  /* Modal ocupa quase toda a tela */
+  .agenda-modal {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    max-height: 95%;
+    border-radius: 28px 28px 0 0;
+    padding: 20px 16px;
+    transform: translateY(100%);
+  }
+
+  .agenda-modal.active {
+    transform: translateY(0);
+  }
+
+  .agenda-content {
+    gap: 10px;
+  }
+
+  .agenda-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .agenda-top h2 {
+    font-size: 1.25rem;
+  }
+
+  .agenda-top select {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 20px;
+  }
+
+  .task-list {
+    gap: 10px;
+  }
+
+  .task-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    border-radius: 22px;
+  }
+
+  .task-item button {
+    font-size: 1.2rem;
+    margin-left: 0;
+  }
+
+  .agenda-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .agenda-footer input,
+  .agenda-footer select {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+  }
+
+  .agenda-footer button {
+    width: 100%;
+    border-radius: 20px;
+    padding: 14px 0;
+    font-size: 1rem;
+  }
+
+  /* Overlay de notificação mais sutil no mobile */
+  .task-overlay {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    font-size: 0.9rem;
+    padding: 12px 16px;
+    border-radius: 18px;
+    text-align: center;
+  }
+}
+
+/* 📱 iPhone SE / telas menores */
+@media (max-width: 480px) {
+  .agenda-top h2 {
+    font-size: 1.1rem;
+  }
+
+  .agenda-top select,
+  .agenda-footer input,
+  .agenda-footer select,
+  .agenda-footer button {
+    font-size: 0.9rem;
+  }
+
+  .task-item {
+    font-size: 0.9rem;
+    padding: 12px 14px;
+  }
+}
+
+/* 🧭 Touch refinado (efeito "tap") */
+@media (hover: none) {
+  .agenda-footer button:active {
+    transform: scale(0.96);
+    box-shadow: 0 4px 16px rgba(229, 9, 20, 0.6);
+  }
+
+  .task-item button:active {
+    transform: scale(1.1);
+    color: #e50914;
+  }
+
+  .agenda-top select:active,
+  .agenda-footer select:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+.day.selected {
+  background: #e50914; /* Vermelho Netflix */
+  color: #fff;
+  box-shadow: 0 0 10px rgba(229, 9, 20, 0.6);
+  transition: all 0.3s ease;
+}
+.day:hover {
+  background: rgba(229, 9, 20, 0.2);
+}
+.day.especial {
+  background: linear-gradient(145deg, #e50914, #ffb300);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+  border-radius: 10px;
+}
+
+.day.especial:hover {
+  box-shadow: 0 0 20px rgba(255, 179, 0, 0.7);
+  transform: scale(1.05);
+}
+.day.especial {
+  background: linear-gradient(145deg, #e50914, #ffb300);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(255, 179, 0, 0.4);
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.legenda-especial {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  margin-top: 2px;
+  text-align: center;
+  letter-spacing: 0.3px;
+  line-height: 1;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+/* ===== Notificação estilo Discord/iOS ===== */
+.task-overlay {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(30, 30, 35, 0.85);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 14px 20px;
+  color: #fff;
+  font-family: 'SF Pro Display', 'Poppins', sans-serif;
+  font-size: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.4s ease;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.task-overlay.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.task-overlay.hide {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+/* Ícone circular */
+.notif-icon {
+  font-size: 20px;
+  background: linear-gradient(135deg, #7289da, #5865f2);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
+}
+
+/* Texto da notificação */
+.notif-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.notif-text strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.notif-text span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
+}
