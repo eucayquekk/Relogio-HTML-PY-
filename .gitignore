@@ -1,21 +1,42 @@
-# Ignorar pastas desnecessárias
-venv/
-build/
-dist/
-__pycache__/
-relogioMobile/
-*.spec
-
-# Ignorar arquivos temporários
-*.log
-*.tmp
-*.pyc
-
-# Ignorar qualquer coisa que não seja os principais
+# Ignorar tudo por padrão
 *
+
+# 🟢 Manter apenas os arquivos principais do relógio
 !app.ico
+!app.png
 !app.py
 !calendario.html
 !index.html
 !style.css
 !.gitignore
+!README.md
+
+# 🟢 Se quiser manter a versão mobile, descomenta as linhas abaixo
+#!relogioMobile/
+#!relogioMobile/config.xml
+#!relogioMobile/www/
+#!relogioMobile/www/**
+
+# 🧱 Ignorar ambientes virtuais e builds
+venv/
+.env/
+build/
+dist/
+__pycache__/
+*.spec
+*.exe
+*.log
+*.tmp
+*.pyc
+*.pyo
+*.pyd
+
+# 🪶 Ignorar arquivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 🧠 Ignorar backups e configs do VS Code
+.vscode/
+.idea/
+*.code-workspace
