@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Relógio • iOS + Netflix Style</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="img/logo.png" type="image/x-icon">
+</head>
+
+<body>
+  <main class="card" id="appCard">
+    <div class="digital">
+      <div class="time" id="time">--:--:--</div>
+      <div class="date" id="date">carregando...</div>
+    </div>
+
+    <div class="analog-wrap">
+      <div class="clock-face" aria-hidden="true">
+        <div class="hand hour" id="hour-hand"></div>
+        <div class="hand minute" id="minute-hand"></div>
+        <div class="hand second" id="second-hand"></div>
+        <div class="center-dot"></div>
+        <div class="ticks" id="ticks"></div>
+        <div class="roman-numbers" id="romanNumbers"></div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="toggleFormat">Formato 24h</button>
+      <button class="btn" id="toggleSeconds">Esconder segundos</button>
+    </div>
+  </main>
+
+  <!-- dark toggle (top-left) -->
+  <button id="toggleDark" class="dark-btn" aria-label="Alternar tema">
+    <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+      fill="currentColor">
+      <path d="M21 12.79A9 9 0 0112.21 3 7 7 0 1012 21a9 9 0 009-8.21z" />
+    </svg>
+    <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+      style="display:none;">
+      <path
+        d="M12 4.5V2M12 22v-2.5M4.5 12H2M22 12h-2.5M5.64 5.64L4.22 4.22M19.78 19.78l-1.42-1.42M5.64 18.36l-1.42 1.42M19.78 4.22l-1.42 1.42M12 7a5 5 0 100 10 5 5 0 000-10z" />
+    </svg>
+  </button>
+
+  <!-- hamburger (top-right) -->
+  <button id="hamburgerBtn" class="hamburger" aria-label="Menu">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="p1" d="M3 6h18" />
+      <path class="p2" d="M3 12h18" />
+      <path class="p3" d="M3 18h18" />
+    </svg>
+  </button>
+
+  <!-- menu modal (glass) -->
+  <div id="menuModal" class="menu-modal" aria-hidden="true">
+    <div class="menu-content" role="dialog" aria-modal="true" aria-label="Menu">
+      <h2>Menu</h2>
+      <ul>
+        <li><a href="#" id="openCalendar">📅 Calendário</a></li>
+        <li><a href="#" id="openSettings">⚙️ Configurações</a></li>
+        <li><a href="#" id="openThemes">🎨 Temas</a></li>
+        <li><a href="#" id="openAgenda">📝 Agenda</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- slide-up calendar (in-page) -->
+  <div id="calendarModal" class="calendar-modal" aria-hidden="true">
+    <div class="calendar-content">
+      <div class="calendar-top">
+        <div class="calendar-controls">
+          <button id="prevMonthSlide" aria-label="Mês anterior">&#x276E;</button>
+        </div>
+        <div id="monthYearSlide" style="font-weight:700;color:var(--text)"></div>
+        <div class="calendar-controls">
+          <button id="nextMonthSlide" aria-label="Próximo mês">&#x276F;</button>
+        </div>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+
+      <div style="display:flex;justify-content:center;margin-top:12px">
+        <button class="btn" id="closeCalendarBtn">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agenda Modal -->
+  <div id="agendaModal" class="agenda-modal" aria-hidden="true">
+    <div class="agenda-content">
+      <div class="agenda-top">
+        <h2>Agenda de Tarefas</h2>
+        <button id="closeAgenda" class="btn-close">&times;</button>
+        <select id="filterCategory">
+          <option value="">Filtrar por categoria</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="estudos">Estudos</option>
+        </select>
+      </div>
+      <div id="taskList" class="task-list"></div>
+      <div class="agenda-footer">
+        <input type="text" id="taskInput" placeholder="Nova tarefa..." />
+        <input type="time" id="taskTime" />
+        <select id="taskCategory">
+          <option value="">Categoria</option>
+          <option value="trabalho">Trabalho</option>
+          <option value="pessoal">Pessoal</option>
+          <option value="estudos">Estudos</option>
+        </select>
+        <button id="addTask" class="btn">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* -------------------------
+       Helper + initial DOM refs
+       ------------------------- */
+    const pad = n => String(n).padStart(2, '0');
+    const timeEl = document.getElementById('time');
+    const dateEl = document.getElementById('date');
+    const hourHand = document.getElementById('hour-hand');
+    const minuteHand = document.getElementById('minute-hand');
+    const secondHand = document.getElementById('second-hand');
+    const ticksEl = document.getElementById('ticks');
+
+    const toggleFormatBtn = document.getElementById('toggleFormat');
+    const toggleSecondsBtn = document.getElementById('toggleSeconds');
+    let use24 = true, showSeconds = true;
+
+    /* -------------------------
+       Create clock ticks (12)
+       ------------------------- */
+    for (let i = 0; i < 12; i++) {
+      const t = document.createElement('div');
+      t.className = 'tick';
+      t.style.transform = `translateX(-50%) rotate(${i * 30}deg)`;
+      ticksEl.appendChild(t);
+    }
+
+    /* -------------------------
+       Roman numerals around face
+       ------------------------- */
+    const romanNumbersEl = document.getElementById('romanNumbers');
+    const romanNumerals = ['XII', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI'];
+    for (let i = 0; i < 12; i++) {
+      const span = document.createElement('span');
+      span.textContent = romanNumerals[i];
+      const angle = i * 30;
+      const radius = 78;
+      const rad = angle * Math.PI / 180;
+      const x = radius * Math.sin(rad);
+      const y = -radius * Math.cos(rad);
+      span.style.transform = `translate(${x}px, ${y}px) translate(-50%,-50%)`;
+      romanNumbersEl.appendChild(span);
+    }
+
+    /* -------------------------
+       Smooth clock animation
+       ------------------------- */
+    function updateClockRAF() {
+      const now = new Date();
+      const ms = now.getMilliseconds();
+      const ss = now.getSeconds() + ms / 1000;
+      const mm = now.getMinutes() + ss / 60;
+      const hh = now.getHours() % 12 + mm / 60;
+
+      const hourDeg = hh * 30;
+      const minuteDeg = mm * 6;
+      const secondDeg = ss * 6;
+
+      hourHand.style.transform = `translate(-50%,-100%) rotate(${hourDeg}deg)`;
+      minuteHand.style.transform = `translate(-50%,-100%) rotate(${minuteDeg}deg)`;
+      secondHand.style.transform = `translate(-50%,-100%) rotate(${secondDeg}deg)`;
+
+      // digital
+      let displayHours = now.getHours();
+      let suffix = '';
+      if (!use24) {
+        suffix = displayHours >= 12 ? ' PM' : ' AM';
+        displayHours = displayHours % 12;
+        if (displayHours === 0) displayHours = 12;
+      }
+      timeEl.textContent = showSeconds ? `${pad(displayHours)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}${suffix}` : `${pad(displayHours)}:${pad(now.getMinutes())}${suffix}`;
+      dateEl.textContent = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+      requestAnimationFrame(updateClockRAF);
+    }
+    requestAnimationFrame(updateClockRAF);
+
+    /* -------------------------
+       Button toggles
+       ------------------------- */
+    toggleFormatBtn.addEventListener('click', () => {
+      use24 = !use24;
+      toggleFormatBtn.textContent = use24 ? 'Formato 24h' : 'Formato 12h';
+    });
+    toggleSecondsBtn.addEventListener('click', () => {
+      showSeconds = !showSeconds;
+      secondHand.style.display = showSeconds ? 'block' : 'none';
+      toggleSecondsBtn.textContent = showSeconds ? 'Esconder segundos' : 'Mostrar segundos';
+    });
+
+    /* -------------------------
+       Theme / dark toggle
+       ------------------------- */
+    const darkBtn = document.getElementById('toggleDark');
+    const iconMoon = document.getElementById('iconMoon');
+    const iconSun = document.getElementById('iconSun');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) document.documentElement.classList.add('dark'); // optional
+
+    darkBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+      // swap icons
+      const active = document.documentElement.classList.contains('dark');
+      iconMoon.style.display = active ? 'none' : 'block';
+      iconSun.style.display = active ? 'block' : 'none';
+    });
+
+    /* -------------------------
+       Hamburger menu animation + modal
+       ------------------------- */
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const menuModal = document.getElementById('menuModal');
+    hamburgerBtn.addEventListener('click', () => {
+      const open = hamburgerBtn.classList.toggle('open');
+      if (open) {
+        menuModal.style.display = 'flex';
+        // darken content behind slightly
+      } else {
+        menuModal.style.display = 'none';
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (e.target === menuModal) {
+        hamburgerBtn.classList.remove('open');
+        menuModal.style.display = 'none';
+      }
+    });
+
+    /* -------------------------
+       Calendar slide-up (in-page)
+       ------------------------- */
+    const calendarModal = document.getElementById('calendarModal');
+    const openCalendarLink = document.getElementById('openCalendar');
+    const closeCalendarBtn = document.getElementById('closeCalendarBtn');
+    const monthYearSlide = document.getElementById('monthYearSlide');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const prevMonthSlide = document.getElementById('prevMonthSlide');
+    const nextMonthSlide = document.getElementById('nextMonthSlide');
+
+    let calDate = new Date();
+    /*datas comemorativas*/
+    const datasEspeciais = [
+      { dia: 1, mes: 1, nome: 'Ano Novo' },
+      { dia: 12, mes: 10, nome: 'Nossa Senhora Aparecida' },
+      { dia: 15, mes: 11, nome: 'Proclamação da República' },
+      { dia: 25, mes: 12, nome: 'Natal' },
+      { dia: 7, mes: 9, nome: 'Independência do Brasil' },
+      { dia: 1, mes: 5, nome: 'Dia do Trabalhador' },
+      { dia: 31, mes: 10, nome: 'Halloween 🎃' },
+      { dia: 14, mes: 2, nome: 'Valentine’s Day ❤️' },
+      { dia: 20, mes: 11, nome: 'Consciência Negra' }
+    ];
+
+    function renderSlideCalendar(date) {
+      calendarGrid.innerHTML = '';
+      const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      dayNames.forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'day-name';
+        el.textContent = d;
+        calendarGrid.appendChild(el);
+      });
+
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      monthYearSlide.textContent = date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const last = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const em = document.createElement('div');
+        calendarGrid.appendChild(em);
+      }
+      for (let i = 1; i <= last; i++) {
+        const d = document.createElement('div');
+        d.className = 'day';
+        d.textContent = i;
+        const t = new Date();
+        if (i === t.getDate() && month === t.getMonth() && year === t.getFullYear()) {
+          d.classList.add('today');
+        }
+        // Verifica se é data especial
+        const especial = datasEspeciais.find(e => e.dia === i && e.mes === (month + 1));
+        if (especial) {
+          d.classList.add('especial');
+
+          // Cria uma mini legenda abaixo do número
+          const label = document.createElement('div');
+          label.className = 'legenda-especial';
+          label.textContent = especial.nome;
+          d.appendChild(label);
+        }
+
+        d.addEventListener('click', () => {
+          // Remove seleção anterior
+          document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+
+          // Marca o dia clicado
+          d.classList.add('selected');
+        });
+        calendarGrid.appendChild(d);
+      }
+    }
+
+    openCalendarLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      menuModal.style.display = 'none';
+      hamburgerBtn.classList.remove('open');
+      renderSlideCalendar(new Date());
+      calendarModal.classList.add('active');
+      // lock scroll
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeCalendarBtn.addEventListener('click', () => {
+      calendarModal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    /* swipe down to close (mobile) */
+    let startY = null;
+    let currentBottom = 0;
+    calendarModal.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+    });
+    calendarModal.addEventListener('touchmove', e => {
+      if (!startY) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 0) {
+        calendarModal.style.transform = `translateY(${dy}px)`;
+      }
+    });
+    calendarModal.addEventListener('touchend', e => {
+      if (!startY) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      calendarModal.style.transform = '';
+      if (dy > 100) {
+        calendarModal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      startY = null;
+    });
+
+    /* calendar nav */
+    prevMonthSlide.addEventListener('click', () => {
+      calDate.setMonth(calDate.getMonth() - 1);
+      renderSlideCalendar(calDate);
+    });
+    nextMonthSlide.addEventListener('click', () => {
+      calDate.setMonth(calDate.getMonth() + 1);
+      renderSlideCalendar(calDate);
+    });
+
+    /* close menu settings placeholders */
+    document.getElementById('openSettings').addEventListener('click', e => {
+      e.preventDefault();
+      alert('Configurações (em desenvolvimento)');
+      menuModal.style.display = 'none';
+      hamburgerBtn.classList.remove('open');
+    });
+    document.getElementById('openThemes').addEventListener('click', e => {
+      e.preventDefault();
+      alert('Temas (em desenvolvimento)');
+      menuModal.style.display = 'none';
+      hamburgerBtn.classList.remove('open');
+    });
+
+    /* click outside menu closes: handled earlier */
+
+    /* small polish: change body gradient by hour (subtle) */
+    (function setHourGradient() {
+      const h = new Date().getHours();
+      if (h >= 6 && h < 12) {
+        document.body.style.background = 'radial-gradient(1200px 700px at 10% 10%, rgba(229,9,20,0.03), transparent 8%), linear-gradient(180deg, #101010, #101116)';
+      } else if (h >= 12 && h < 18) {
+        document.body.style.background = 'radial-gradient(1200px 700px at 90% 10%, rgba(229,9,20,0.04), transparent 6%), linear-gradient(180deg,#0f0f10,#121116)';
+      } else {
+        document.body.style.background = 'radial-gradient(1200px 700px at 10% 80%, rgba(255,59,59,0.02), transparent 4%), linear-gradient(180deg,#070707,#0b0b0b)';
+      }
+    })();
+
+    // ------------------------
+    // Agenda de Tarefas
+    // ------------------------
+    const openAgendaBtn = document.getElementById('openAgenda');
+    const agendaModal = document.getElementById('agendaModal');
+    const closeAgendaBtn = document.getElementById('closeAgenda');
+    const taskListEl = document.getElementById('taskList');
+    const taskInput = document.getElementById('taskInput');
+    const taskTime = document.getElementById('taskTime');
+    const addTaskBtn = document.getElementById('addTask');
+
+
+
+    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+
+    function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
+
+    function renderTasks() {
+      taskListEl.innerHTML = '';
+      tasks.forEach((t, i) => {
+        const selectedCategory = filterCategory.value;
+        if (selectedCategory && t.category !== selectedCategory) return;
+        const div = document.createElement('div');
+        div.className = 'task-item';
+        if (t.completed) div.classList.add('completed');
+        div.innerHTML = `<span>${t.text} ${t.time ? '• ' + t.time : ''} ${t.category ? '• ' + t.category : ''}</span>
+                 <div>
+                   <button class="btn-complete">✔️</button>
+                   <button class="btn-delete">🗑️</button>
+                 </div>`;
+
+        taskListEl.appendChild(div);
+
+        // animação delay
+        div.style.animationDelay = `${i * 0.08}s`;
+
+        // complete task
+        div.querySelector('.btn-complete').addEventListener('click', () => {
+          t.completed = !t.completed;
+          saveTasks(); renderTasks();
+        });
+
+        // delete task
+        div.querySelector('.btn-delete').addEventListener('click', () => {
+          tasks.splice(i, 1); saveTasks(); renderTasks();
+        });
+      });
+    }
+    renderTasks();
+
+    // add task
+    addTaskBtn.addEventListener('click', () => {
+      const text = taskInput.value.trim();
+      const time = taskTime.value;
+      if (text === '') return;
+      const category = document.getElementById('taskCategory').value; // NOVO
+      tasks.push({ text, time, category, completed: false }); // ALTERADO
+      saveTasks(); renderTasks();
+      taskInput.value = ''; taskTime.value = '';
+      document.getElementById('taskCategory').value = ''; // NOVO
+    });
+
+    // open/close modal
+    openAgendaBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      menuModal.style.display = 'none';
+      hamburgerBtn.classList.remove('open');
+      agendaModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      const filterCategory = document.getElementById('filterCategory');
+      if (filterCategory) {
+        filterCategory.addEventListener('change', () => renderTasks());
+      }
+    });
+    closeAgendaBtn.addEventListener('click', () => {
+      agendaModal.classList.remove('active');
+      document.body.style.overflow = '';
+    });
+
+    // ------------------------
+    // Notificações automáticas
+    // ------------------------
+    function checkTaskNotifications() {
+      const now = new Date();
+      const hhmm = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+      tasks.forEach(t => {
+        if (t.time === hhmm && !t.notified) {
+          t.notified = true; // marca como notificado
+          saveTasks();
+
+// dispara notificação nativa via Python (se disponível)
+if (window.pywebview) {
+  window.pywebview.api.notify("Lembrete ⏰", `${t.text} agora!`);
+}
+
+const notif = document.createElement('div');
+notif.className = 'task-overlay';
+notif.innerHTML = `
+  <div class="notif-icon">⏰</div>
+  <div class="notif-text">
+    <strong>${t.text}</strong>
+    <span>agora mesmo</span>
+  </div>
+`;
+
+document.body.appendChild(notif);
+notif.classList.add("show");
+
+setTimeout(() => {
+  notif.classList.remove("show");
+  notif.classList.add("hide");
+  setTimeout(() => notif.remove(), 600);
+}, 5000);
+
+  }
+  });
+}
+    setInterval(checkTaskNotifications, 1000);
+  </script>
+</body>
+
+</html>
